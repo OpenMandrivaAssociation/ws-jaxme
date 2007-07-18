@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.1
-Release:        %mkrel 2.1.1
+Release:        %mkrel 2.1.2
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -70,7 +70,7 @@ BuildRequires:  xalan-j2
 BuildRequires:  xmldb-api
 BuildRequires:  xmldb-api-sdk
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-apis
+BuildRequires:  xml-commons-jaxp-1.3-apis
 Requires:       antlr
 Requires:       jaxp_transform_impl
 Requires:       jakarta-commons-codec
@@ -81,7 +81,7 @@ Requires:       xalan-j2
 Requires:       xmldb-api
 Requires:       xmldb-api-sdk
 Requires:       xerces-j2
-Requires:       xml-commons-apis
+Requires:       xml-commons-jaxp-1.3-apis
 Requires:       jpackage-utils
 Requires(postun): jpackage-utils
 
@@ -138,7 +138,7 @@ junit \
 log4j \
 servletapi5 \
 xerces-j2 \
-xml-commons-apis \
+xml-commons-jaxp-1.3-apis \
 xmldb-api \
 xmldb-api-sdk \
 hsqldb \
