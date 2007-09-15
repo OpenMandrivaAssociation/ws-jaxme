@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.1
-Release:        %mkrel 2.1.2
+Release:        %mkrel 2.1.3
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -50,8 +50,6 @@ Patch1:         ws-jaxme-0.5.1-create_sql.patch
 Patch2:         ws-jaxme-use-commons-codec.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
-Requires(post): java-gcj-compat
-Requires(postun): java-gcj-compat
 BuildRequires:  java-gcj-compat-devel
 %else
 BuildArch:      noarch
