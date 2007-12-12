@@ -1,4 +1,4 @@
-# Copyright (c) 2000-2005, JPackage Project
+# Copyright (c) 2000-2007, JPackage Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,22 +32,28 @@
 %define gcj_support 1
 
 Name:           ws-jaxme
-Version:        0.5.1
-Release:        %mkrel 2.1.3
+Version:        0.5.2
+Release:        %mkrel 1.0.1
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
 Group:          Development/Java
 License:        Apache License
 URL:            http://ws.apache.org/jaxme/
-# svn export http://svn.apache.org/repos/asf/webservices/jaxme/tags/R0_5_1/ ws-jaxme-0.5.1
-# tar czf ws-jaxme-0.5.1-src.tar.gz ws-jaxme
-Source0:        ws-jaxme-0.5.1-src.tar.gz
+Source0:        ws-jaxme-0.5.2-src.tar.gz
+# svn export https://svn.apache.org/repos/asf/webservices/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
+
 Source1:        ws-jaxme-0.5-docs.tar.gz
 # generated docs with forrest-0.5.1
+Source2:        jaxme2-0.5.2.pom
+Source3:        jaxme2-rt-0.5.2.pom
+Source4:        jaxmeapi-0.5.2.pom
+Source5:        jaxmejs-0.5.2.pom
+Source6:        jaxmepm-0.5.2.pom
+Source7:        jaxmexs-0.5.2.pom
+
 Patch0:         ws-jaxme-ant-scripts.patch
-Patch1:         ws-jaxme-0.5.1-create_sql.patch
-Patch2:         ws-jaxme-use-commons-codec.patch
+Patch1:         ws-jaxme-use-commons-codec.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
@@ -125,7 +131,6 @@ popd
 
 %patch0 -b .sav
 %patch1 -b .sav
-%patch2 -b .sav
 
 %build
 build-jar-repository -s -p prerequisites \
@@ -141,7 +146,7 @@ xmldb-api \
 xmldb-api-sdk \
 hsqldb \
 
-%{ant} all javadoc
+%{ant} -Dbuild.sysclasspath=first all javadoc
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -149,17 +154,30 @@ install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name}
 for jar in dist/*.jar; do
    install -m 644 ${jar} $RPM_BUILD_ROOT%{_javadir}/%{base_name}/
 done
-(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && 
-    for jar in *-%{version}*; 
-        do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; 
-    done
-)
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && for jar in *-%{version}*; do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && for jar in *.jar; do ln -sf ${jar} ws-${jar}; done)
 
-(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && 
-    for jar in *.jar; 
-        do ln -sf ${jar} ws-${jar}; 
-    done
-)
+%add_to_maven_depmap org.apache.ws.jaxme jaxme2 %{version} JPP/jaxme jaxme2
+%add_to_maven_depmap org.apache.ws.jaxme jaxme2-rt %{version} JPP/jaxme jaxme2-rt
+%add_to_maven_depmap org.apache.ws.jaxme jaxmeapi %{version} JPP/jaxme jaxmeapi
+%add_to_maven_depmap org.apache.ws.jaxme jaxmejs %{version} JPP/jaxme jaxmejs
+%add_to_maven_depmap org.apache.ws.jaxme jaxmepm %{version} JPP/jaxme jaxmepm
+%add_to_maven_depmap org.apache.ws.jaxme jaxmexs %{version} JPP/jaxme jaxmexs
+
+# poms
+install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/maven2/poms
+install -pm 644 %{SOURCE2} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxme2.pom
+install -pm 644 %{SOURCE3} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxme2-rt.pom
+install -pm 644 %{SOURCE4} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmeapi.pom
+install -pm 644 %{SOURCE5} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmejs.pom
+install -pm 644 %{SOURCE6} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmepm.pom
+install -pm 644 %{SOURCE7} \
+    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmexs.pom
 
 #javadoc
 install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
@@ -180,11 +198,15 @@ install -pm 644 LICENSE $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%if %{gcj_support}
 %post
+%update_maven_depmap
+%if %{gcj_support}
 %{update_gcjdb}
+%endif
 
 %postun
+%update_maven_depmap
+%if %{gcj_support}
 %{clean_gcjdb}
 %endif
 
@@ -192,6 +214,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(0644,root,root,0755)
 %doc %{_docdir}/%{name}-%{version}/LICENSE
 %{_javadir}/%{base_name}
+%{_datadir}/maven2/poms/*
+%{_mavendepmapfragdir}
 %if %{gcj_support}
 %dir %{_libdir}/gcj/%{name}
 %attr(-,root,root) %{_libdir}/gcj/%{name}/*
