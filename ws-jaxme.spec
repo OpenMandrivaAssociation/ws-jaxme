@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        %mkrel 1.0.1
+Release:        %mkrel 1.0.2
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -61,7 +61,7 @@ BuildRequires:  java-gcj-compat-devel
 BuildArch:      noarch
 BuildRequires:  java-devel
 %endif
-BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-trax >= 0:1.6
 BuildRequires:  antlr
