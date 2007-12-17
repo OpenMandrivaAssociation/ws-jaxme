@@ -54,7 +54,6 @@ Source7:        jaxmexs-0.5.2.pom
 
 Patch0:         ws-jaxme-ant-scripts.patch
 Patch1:         ws-jaxme-use-commons-codec.patch
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
 %else
