@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        %mkrel 1.0.2
+Release:        %mkrel 1.0.3
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -51,9 +51,10 @@ Source4:        jaxmeapi-0.5.2.pom
 Source5:        jaxmejs-0.5.2.pom
 Source6:        jaxmepm-0.5.2.pom
 Source7:        jaxmexs-0.5.2.pom
-
+Source8:        ws-jaxme-bind-MANIFEST.MF
 Patch0:         ws-jaxme-ant-scripts.patch
 Patch1:         ws-jaxme-use-commons-codec.patch
+Patch2:         ws-jaxme-jdk16.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
@@ -90,17 +91,17 @@ Requires:       jpackage-utils
 Requires(postun): jpackage-utils
 
 %description
-A Java/XML binding compiler takes as input a schema 
-description (in most cases an XML schema, but it may 
-be a DTD, a RelaxNG schema, a Java class inspected 
-via reflection, or a database schema). The output is 
+A Java/XML binding compiler takes as input a schema
+description (in most cases an XML schema, but it may
+be a DTD, a RelaxNG schema, a Java class inspected
+via reflection, or a database schema). The output is
 a set of Java classes:
-* A Java bean class matching the schema description. 
-  (If the schema was obtained via Java reflection, 
+* A Java bean class matching the schema description.
+  (If the schema was obtained via Java reflection,
   the original Java bean class.)
-* Read a conforming XML document and convert it into 
+* Read a conforming XML document and convert it into
   the equivalent Java bean.
-* Vice versa, marshal the Java bean back into the 
+* Vice versa, marshal the Java bean back into the
   original XML document.
 
 %package        javadoc
@@ -131,6 +132,7 @@ popd
 
 %patch0 -b .sav
 %patch1 -b .sav
+%patch2 -p1 -b .sav
 
 %build
 build-jar-repository -s -p prerequisites \
@@ -163,6 +165,11 @@ done
 %add_to_maven_depmap org.apache.ws.jaxme jaxmejs %{version} JPP/jaxme jaxmejs
 %add_to_maven_depmap org.apache.ws.jaxme jaxmepm %{version} JPP/jaxme jaxmepm
 %add_to_maven_depmap org.apache.ws.jaxme jaxmexs %{version} JPP/jaxme jaxmexs
+
+mkdir -p META-INF
+cp -p %{SOURCE1} META-INF/MANIFEST.MF
+touch META-INF/MANIFEST.MF
+zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 
 # poms
 install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/maven2/poms
