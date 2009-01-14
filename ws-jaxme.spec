@@ -70,6 +70,7 @@ BuildRequires:  xmldb-api
 BuildRequires:  xmldb-api-sdk
 BuildRequires:  xerces-j2
 BuildRequires:  xml-commons-jaxp-1.3-apis
+BuildRequires:  libxml2-utils
 Requires:       antlr
 Requires:       jaxp_transform_impl
 Requires:       jakarta-commons-codec
