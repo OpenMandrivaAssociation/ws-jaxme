@@ -126,7 +126,8 @@ done
 %patch0 -p0
 %patch1 -p0
 %patch2 -p1
-DOCBOOKX_DTD=`/usr/bin/xmlcatalog /usr/share/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
+#DOCBOOKX_DTD=`/usr/bin/xmlcatalog /usr/share/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
+DOCBOOKX_DTD=file:///usr/share/sgml/docbook/xml-dtd-4.5/docbookx.dtd
 %{__perl} -pi -e 's|@DOCBOOKX_DTD@|$DOCBOOKX_DTD|' src/documentation/manual/jaxme2.xml
 %patch3 -p1
 %patch4 -b .sav
