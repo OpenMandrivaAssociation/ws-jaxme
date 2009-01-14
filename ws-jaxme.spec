@@ -72,6 +72,7 @@ BuildRequires:  xerces-j2
 BuildRequires:  xml-commons-jaxp-1.3-apis
 BuildRequires:  libxml2-utils
 BuildRequires:  docbook-style-xsl
+BuildRequires:  docbook-dtd45-xml
 Requires:       antlr
 Requires:       jaxp_transform_impl
 Requires:       jakarta-commons-codec
