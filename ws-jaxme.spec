@@ -29,7 +29,7 @@
 #
 
 %define base_name jaxme
-%define gcj_support 1
+%define gcj_support 0
 
 Name:           ws-jaxme
 Version:        0.5.2
@@ -42,19 +42,13 @@ License:        Apache License
 URL:            http://ws.apache.org/jaxme/
 Source0:        ws-jaxme-0.5.2-src.tar.gz
 # svn export https://svn.apache.org/repos/asf/webservices/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
-
-Source1:        ws-jaxme-0.5-docs.tar.gz
-# generated docs with forrest-0.5.1
-Source2:        jaxme2-0.5.2.pom
-Source3:        jaxme2-rt-0.5.2.pom
-Source4:        jaxmeapi-0.5.2.pom
-Source5:        jaxmejs-0.5.2.pom
-Source6:        jaxmepm-0.5.2.pom
-Source7:        jaxmexs-0.5.2.pom
-Source8:        ws-jaxme-bind-MANIFEST.MF
-Patch0:         ws-jaxme-ant-scripts.patch
-Patch1:         ws-jaxme-use-commons-codec.patch
-Patch2:         ws-jaxme-jdk16.patch
+Source1:        ws-jaxme-bind-MANIFEST.MF
+Patch0:         ws-jaxme-docs_xml.patch
+Patch1:         ws-jaxme-catalog.patch
+Patch2:         ws-jaxme-system-dtd.patch
+Patch3:         ws-jaxme-jdk16.patch
+Patch4:         ws-jaxme-ant-scripts2.patch
+Patch5:         ws-jaxme-use-commons-codec.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
@@ -125,30 +119,28 @@ Group:          Development/Java
 for j in $(find . -name "*.jar"); do
     mv $j $j.no
 done
-mkdir -p build/docs/build/site
-pushd build/docs/build/site
-tar xzf %{SOURCE1}
-popd
 
-%patch0 -b .sav
-%patch1 -b .sav
-%patch2 -p1 -b .sav
+%patch0 -p0
+%patch1 -p0
+%patch2 -p1
+DOCBOOKX_DTD=`%{_bindir}/xmlcatalog %{_datadir}/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
+%{__perl} -pi -e 's|@DOCBOOKX_DTD@|$DOCBOOKX_DTD|' src/documentation/manual/jaxme2.xml
+%patch3 -p1
+%patch4 -b .sav
+%patch5 -b .sav
 
 %build
-build-jar-repository -s -p prerequisites \
-ant \
-antlr \
-commons-codec \
-junit \
-log4j \
-servletapi5 \
-xerces-j2 \
-xml-commons-jaxp-1.3-apis \
-xmldb-api \
-xmldb-api-sdk \
-hsqldb \
+export OPT_JAR_LIST="xalan-j2 ant/ant-trax xalan-j2-serializer xml-commons-resolver ant/ant-apache-resolver"
+export CLASSPATH=$(build-classpath antlr hsqldb commons-codec junit log4j xmldb-api xerces-j2 xml-commons-jaxp-1.3-apis)
+%{ant} all Docs.all \
+-Dbuild.sysclasspath=first \
+-Ddocbook.home=%{_datadir}/sgml/docbook \
+-Ddocbookxsl.home=%{_datadir}/sgml/docbook/xsl-stylesheets
 
-%{ant} -Dbuild.sysclasspath=first all javadoc
+mkdir -p META-INF
+cp -p %{SOURCE1} META-INF/MANIFEST.MF
+touch META-INF/MANIFEST.MF
+zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -156,46 +148,28 @@ install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name}
 for jar in dist/*.jar; do
    install -m 644 ${jar} $RPM_BUILD_ROOT%{_javadir}/%{base_name}/
 done
-(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && for jar in *-%{version}*; do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`; done)
-(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} && for jar in *.jar; do ln -sf ${jar} ws-${jar}; done)
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
+    for jar in *-%{version}*;
+        do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`;
+    done
+)
 
-%add_to_maven_depmap org.apache.ws.jaxme jaxme2 %{version} JPP/jaxme jaxme2
-%add_to_maven_depmap org.apache.ws.jaxme jaxme2-rt %{version} JPP/jaxme jaxme2-rt
-%add_to_maven_depmap org.apache.ws.jaxme jaxmeapi %{version} JPP/jaxme jaxmeapi
-%add_to_maven_depmap org.apache.ws.jaxme jaxmejs %{version} JPP/jaxme jaxmejs
-%add_to_maven_depmap org.apache.ws.jaxme jaxmepm %{version} JPP/jaxme jaxmepm
-%add_to_maven_depmap org.apache.ws.jaxme jaxmexs %{version} JPP/jaxme jaxmexs
-
-mkdir -p META-INF
-cp -p %{SOURCE1} META-INF/MANIFEST.MF
-touch META-INF/MANIFEST.MF
-zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
-
-# poms
-install -d -m 755 $RPM_BUILD_ROOT%{_datadir}/maven2/poms
-install -pm 644 %{SOURCE2} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxme2.pom
-install -pm 644 %{SOURCE3} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxme2-rt.pom
-install -pm 644 %{SOURCE4} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmeapi.pom
-install -pm 644 %{SOURCE5} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmejs.pom
-install -pm 644 %{SOURCE6} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmepm.pom
-install -pm 644 %{SOURCE7} \
-    $RPM_BUILD_ROOT%{_datadir}/maven2/poms/JPP.jaxme-jaxmexs.pom
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
+    for jar in *.jar;
+        do ln -sf ${jar} ws-${jar};
+    done
+)
 
 #javadoc
 install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 cp -pr build/docs/src/documentation/content/apidocs \
     $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
-rm -rf build/docs/build/site/apidocs
+rm -rf build/docs/src/documentation/content/apidocs
 
 #manual
 install -dm 755 $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
-cp -pr build/docs/build/site/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+cp -pr build/docs/src/documentation/content/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 install -pm 644 LICENSE $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 
 %if %{gcj_support}
@@ -206,13 +180,11 @@ install -pm 644 LICENSE $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 rm -rf $RPM_BUILD_ROOT
 
 %post
-%update_maven_depmap
 %if %{gcj_support}
 %{update_gcjdb}
 %endif
 
 %postun
-%update_maven_depmap
 %if %{gcj_support}
 %{clean_gcjdb}
 %endif
@@ -221,8 +193,6 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(0644,root,root,0755)
 %doc %{_docdir}/%{name}-%{version}/LICENSE
 %{_javadir}/%{base_name}
-%{_datadir}/maven2/poms/*
-%{_mavendepmapfragdir}
 %if %{gcj_support}
 %dir %{_libdir}/gcj/%{name}
 %attr(-,root,root) %{_libdir}/gcj/%{name}/*
