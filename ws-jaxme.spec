@@ -59,6 +59,7 @@ BuildRequires:  java-devel
 BuildRequires:  java-rpmbuild >= 0:1.6
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-trax >= 0:1.6
+BuildRequires:  ant-apache-resolver
 BuildRequires:  antlr
 BuildRequires:  jaxp_transform_impl
 BuildRequires:  jakarta-commons-codec
