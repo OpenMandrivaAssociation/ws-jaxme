@@ -49,6 +49,7 @@ Patch2:         ws-jaxme-system-dtd.patch
 Patch3:         ws-jaxme-jdk16.patch
 Patch4:         ws-jaxme-ant-scripts2.patch
 Patch5:         ws-jaxme-use-commons-codec.patch
+Patch6:         ws-jaxme-fix_docbook.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 %if %{gcj_support}
 BuildRequires:  java-gcj-compat-devel
@@ -74,6 +75,7 @@ BuildRequires:  xml-commons-jaxp-1.3-apis
 BuildRequires:  libxml2-utils
 BuildRequires:  docbook-style-xsl
 BuildRequires:  docbook-dtd45-xml
+BuildRequires:  zip
 Requires:       antlr
 Requires:       jaxp_transform_impl
 Requires:       jakarta-commons-codec
@@ -126,13 +128,11 @@ done
 
 %patch0 -p0
 %patch1 -p0
-%patch2 -p1
-#DOCBOOKX_DTD=`/usr/bin/xmlcatalog /usr/share/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
-DOCBOOKX_DTD=file:///usr/share/sgml/docbook/xml-dtd-4.5/docbookx.dtd
-%{__perl} -pi -e 's|@DOCBOOKX_DTD@|$DOCBOOKX_DTD|' src/documentation/manual/jaxme2.xml
+#%patch2 -p1
 %patch3 -p1
 %patch4 -b .sav
 %patch5 -b .sav
+%patch6 -p0 -b .docbook
 
 %build
 export OPT_JAR_LIST="xalan-j2 ant/ant-trax xalan-j2-serializer xml-commons-resolver ant/ant-apache-resolver"
