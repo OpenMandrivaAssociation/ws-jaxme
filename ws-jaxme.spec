@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        %mkrel 1.0.4
+Release:        %mkrel 1.0.5
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
