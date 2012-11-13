@@ -1,0 +1,41 @@
+Index: src/documentation/manual/jaxme2.xml
+===================================================================
+--- src/documentation/manual/jaxme2.xml
++++ src/documentation/manual/jaxme2.xml	2009-01-15 09:57:53.000000000 +0100
+@@ -2,13 +2,13 @@
+ <!--
+ 
+  Copyright 2004 The Apache Software Foundation.
+- 
++
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+- 
++
+       http://www.apache.org/licenses/LICENSE-2.0
+- 
++
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -16,8 +16,8 @@
+  limitations under the License.
+ 
+ -->
+-<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
+-                  "http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd" [
++<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
++                         "file:///usr/share/sgml/docbook/xml-dtd-4.5/docbookx.dtd" [
+   <!ENTITY address SYSTEM "address.xml">
+   <!ENTITY addressxsd SYSTEM "addressxsd.xml">
+   <!ENTITY faq SYSTEM "faq.xml">
+@@ -57,7 +57,7 @@
+ of a typical application is supported: gathering, storing, processing,
+ and presenting data.</para>
+ <para>JaxMe is an open source project: You may redistribute sources, or
+-binaries, as you like. JaxMe comes to you under The Apache Software Foundation 
++binaries, as you like. JaxMe comes to you under The Apache Software Foundation
+ License, a very liberal license: you are even allowed to redistribute derived works
+ under a modified license. This is in contrast to the GPL, which requires
+ that derived works are GPL'ed again.</para>

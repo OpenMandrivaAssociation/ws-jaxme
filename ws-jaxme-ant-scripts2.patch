@@ -1,0 +1,297 @@
+Index: ant/api.xml
+===================================================================
+--- ant/api.xml
++++ ant/api.xml	2009-01-14 18:53:21.000000000 +0100
+@@ -1,12 +1,12 @@
+ <!--
+  * Copyright 2002-2003, 2004  The Apache Software Foundation
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  * http://www.apache.org/licenses/LICENSE-2.0
+- * 
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -23,9 +23,9 @@
+     <target name="API.clean">
+         <delete dir="${build.api}"/>
+     </target>
+-   
++
+     <path id="api.class.path">
+-        <pathelement location="${preqs}/xml-apis-1.3.02.jar"/>
++        <pathelement location="${preqs}/xml-commons-apis.jar"/>
+     </path>
+ 
+     <target name="API.compile" depends="init">
+Index: ant/jm.xml
+===================================================================
+--- ant/jm.xml
++++ ant/jm.xml	2009-01-14 18:51:53.000000000 +0100
+@@ -1,13 +1,13 @@
+ <?xml version="1.0"?>
+ <!--
+  * Copyright 2002-2004  The Apache Software Foundation
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  * http://www.apache.org/licenses/LICENSE-2.0
+- * 
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -34,9 +34,10 @@
+       <pathelement location="${dist}/jaxmejs-${version}.jar"/>
+       <pathelement location="${dist}/jaxmexs-${version}.jar"/>
+       <pathelement location="${preqs}/ant.jar"/>
+-      <pathelement location="${preqs}/xml-apis-1.3.02.jar"/>
++      <pathelement location="${preqs}/xml-commons-apis.jar"/>
+       <pathelement location="${preqs}/beaver.jar"/>
+       <pathelement location="${preqs}/antlr.jar"/>
++      <pathelement location="${preqs}/commons-codec.jar"/>
+     </path>
+ 
+     <path id="jaxme.test.path">
+@@ -60,7 +61,7 @@
+         <chainGenerator destDir="${build.jm.src}">
+             <classpath>
+                 <pathelement location="${src.jm}"/>
+-            </classpath>   
++            </classpath>
+             <chain
+                 controllerInterfaceName="org.apache.ws.jaxme.generator.sg.AttributeSG"
+                 chainInterfaceName="org.apache.ws.jaxme.generator.sg.AttributeSGChain"
+@@ -131,7 +132,7 @@
+             failonerror="true">
+             <src>
+                 <pathelement location="${src.jm}"/>
+-                <pathelement location="${build.jm.src}"/>   
++                <pathelement location="${build.jm.src}"/>
+             </src>
+             <exclude name="org/apache/ws/jaxme/impl/CharSetXMLWriter.java" unless="have14"/>
+             <exclude name="org/apache/ws/jaxme/junit/*Test.java"/>
+@@ -210,6 +211,6 @@
+             </tests>
+         </runtests>
+     </target>
+-   
++
+     <target name="test" depends="JS.test,XS.test,JM.localtest"/>
+ </project>
+Index: ant/js.xml
+===================================================================
+--- ant/js.xml
++++ ant/js.xml	2009-01-14 18:49:31.000000000 +0100
+@@ -1,13 +1,13 @@
+ <?xml version="1.0"?>
+ <!--
+  * Copyright 2002-2004  The Apache Software Foundation
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  * http://www.apache.org/licenses/LICENSE-2.0
+- * 
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -35,8 +35,8 @@
+     <property name="src.js" location="${basedir}/src/js"/>
+ 
+     <path id="js.class.path">
+-      <pathelement location="${preqs}/log4j-1.2.8.jar"/>
+-      <pathelement location="${preqs}/ant-1.5.4.jar"/>
++      <pathelement location="${preqs}/log4j.jar"/>
++      <pathelement location="${preqs}/ant.jar"/>
+       <pathelement location="${preqs}/junit.jar"/>
+       <pathelement location="${preqs}/antlr.jar"/>
+       <pathelement location="${dist}/jaxmeapi-${version}.jar"/>
+@@ -44,7 +44,7 @@
+ 
+     <path id="js.test.path">
+         <path refid="js.class.path"/>
+-        <pathelement location="${preqs}/hsqldb-1.7.1.jar"/>
++        <pathelement location="${preqs}/hsqldb.jar"/>
+         <pathelement location="${dist}/jaxmejs-${version}.jar"/>
+         <pathelement location="${build.js.test.classes}"/>
+     </path>
+@@ -62,13 +62,13 @@
+     <target name="JS.antlr" depends="dirs">
+         <java classname="antlr.Tool" failonerror="true">
+             <classpath>
+-                <pathelement location="${preqs}/antlr.jar"/>   
++                <pathelement location="${preqs}/antlr.jar"/>
+             </classpath>
+             <arg line="-o ${build.js.src}/org/apache/ws/jaxme/js/jparser"/>
+             <arg file="${src.js}/org/apache/ws/jaxme/js/jparser/java15.g"/>
+         </java>
+     </target>
+-   
++
+     <target name="JS.compile" depends="JS.antlr,init">
+         <javac destdir="${build.js.classes}" debug="${debug}"
+             source="1.3" target="1.3"
+@@ -126,7 +126,7 @@
+             driver="${jdbc.driver}"
+             url="${jdbc.url}"
+             userid="${jdbc.user}"
+-            password="${jdbc.password}" 
++            password="${jdbc.password}"
+             classpathref="js.test.path"
+             autocommit="true"/>
+     </target>
+@@ -151,7 +151,7 @@
+             <dispatcher name="org.apache.ws.jaxme.js.junit.xmlrpcclient.Dispatcher"
+                 implementingXmlRpcHandler="false"/>
+             <serverClasses dir="${src.js}" includes="**/XmlRpcClientTestRemoteClass.java"/>
+-        </xmlRpcGenerator>   
++        </xmlRpcGenerator>
+     </target>
+ 
+     <target name="JS.generate.compile"
+@@ -192,9 +192,9 @@
+         <java classname="org.apache.ws.jaxme.js.util.JavaParser">
+             <classpath>
+                 <pathelement location="dist/jaxmejs-${version}.jar"/>
+-                <pathelement location="${preqs}/antlr.jar"/>   
++                <pathelement location="${preqs}/antlr.jar"/>
+             </classpath>
+-            <arg file="src/js/org/apache/ws/jaxme/sqls/impl/SQLGeneratorImpl.java"/>   
++            <arg file="src/js/org/apache/ws/jaxme/sqls/impl/SQLGeneratorImpl.java"/>
+         </java>
+     </target>
+ </project>
+Index: ant/pm.xml
+===================================================================
+--- ant/pm.xml
++++ ant/pm.xml	2009-01-14 18:50:56.000000000 +0100
+@@ -1,12 +1,12 @@
+ <!--
+  * Copyright 2002-2004  The Apache Software Foundation
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  * http://www.apache.org/licenses/LICENSE-2.0
+- * 
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -29,19 +29,19 @@
+     <property name="jdbc.pm.url" value="jdbc:hsqldb:${build.pm.db}/db"/>
+     <property name="jdbc.pm.user" value="sa"/>
+     <property name="jdbc.pm.password" value=""/>
+-   
++
+     <path id="pm.class.path">
+         <pathelement location="${preqs}/junit.jar"/>
+         <pathelement location="${dist}/jaxmeapi-${version}.jar"/>
+         <pathelement location="${dist}/jaxmejs-${version}.jar"/>
+         <pathelement location="${dist}/jaxmexs-${version}.jar"/>
+         <pathelement location="${dist}/jaxme2-${version}.jar"/>
+-        <pathelement location="${preqs}/beaver.jar"/>   
+-        <pathelement location="${preqs}/hsqldb-1.7.1.jar"/>
++        <pathelement location="${preqs}/beaver.jar"/>
++        <pathelement location="${preqs}/hsqldb.jar"/>
+         <pathelement location="${preqs}/ant.jar"/>
+-        <pathelement location="${preqs}/xml-apis-1.3.02.jar"/>
+-        <pathelement location="${preqs}/xercesImpl.jar"/>
+-        <pathelement location="${preqs}/xmldb-api-20021118.jar"/>
++        <pathelement location="${preqs}/xml-commons-apis.jar"/>
++        <pathelement location="${preqs}/xerces-j2.jar"/>
++        <pathelement location="${preqs}/xmldb-api.jar"/>
+         <!-- These aren't in the CVS and aren't necessary for the build -->
+         <pathelement location="${preqs}/TaminoAPI4J.jar"/>
+         <pathelement location="${preqs}/TaminoJCA.jar"/>
+@@ -74,7 +74,7 @@
+             srcdir="${src.pm}">
+             <exclude name="org/apache/ws/jaxme/pm/junit/**/*"/>
+             <exclude name="org/apache/ws/jaxme/**/api4j/*" unless="have.inoapi4j"/>
+-            <exclude name="org/apache/ws/jaxme/pm/ino/URLEncoder14.java" unless="have14"/>   
++            <exclude name="org/apache/ws/jaxme/pm/ino/URLEncoder14.java" unless="have14"/>
+         </javac>
+         <jarzip filename="jaxmepm" srcdir="${src.pm}" classesdir="${build.pm.classes}"/>
+     </target>
+@@ -122,7 +122,7 @@
+             <src path="${src.pm}"/>
+             <include name="org/apache/ws/jaxme/test/pm/**/*"/>
+             <include name="org/apache/ws/jaxme/pm/junit/**/*"/>
+-            <exclude name="org/apache/ws/jaxme/pm/ino/URLEncoder14.java" unless="have14"/>   
++            <exclude name="org/apache/ws/jaxme/pm/ino/URLEncoder14.java" unless="have14"/>
+         </javac>
+         <copy todir="${build.pm.test.classes}">
+             <fileset dir="${build.pm.test.src}" includes="**/*.xml,**/*.properties"/>
+Index: ant/xs.xml
+===================================================================
+--- ant/xs.xml
++++ ant/xs.xml	2009-01-14 18:52:57.000000000 +0100
+@@ -1,12 +1,12 @@
+ <!--
+  * Copyright 2002-2004  The Apache Software Foundation
+- * 
++ *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+  * You may obtain a copy of the License at
+- * 
++ *
+  * http://www.apache.org/licenses/LICENSE-2.0
+- * 
++ *
+  * Unless required by applicable law or agreed to in writing, software
+  * distributed under the License is distributed on an "AS IS" BASIS,
+  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+@@ -16,14 +16,14 @@
+ -->
+ <project name="XS" default="all">
+     <import file="api.xml"/>
+- 
++
+     <property name="build.xs" location="${build}/xs"/>
+     <property name="build.xs.classes" location="${build.xs}/classes"/>
+     <property name="build.xs.reports" location="${build.xs}/reports"/>
+     <property name="src.xs" location="${basedir}/src/xs"/>
+ 
+     <path id="xs.class.path">
+-        <pathelement location="${preqs}/xml-apis-1.3.02.jar"/>
++        <pathelement location="${preqs}/xml-commons-apis.jar"/>
+         <pathelement location="${preqs}/junit.jar"/>
+         <pathelement location="${dist}/jaxmeapi-${version}.jar"/>
+     </path>
+@@ -31,7 +31,7 @@
+     <target name="XS.clean">
+         <delete dir="${build.xs}"/>
+     </target>
+-   
++
+     <target name="XS.compile" depends="API.all">
+         <jc srcdir="${src.xs}" destdir="${build.xs.classes}"
+             classpathref="xs.class.path" excludes="" java14classes=""/>
+@@ -48,7 +48,7 @@
+         <path id="xs.test.path">
+             <path refid="xs.class.path"/>
+             <pathelement location="${dist}/jaxmexs-${version}.jar"/>
+-            <pathelement location="${preqs}/xercesImpl.jar"/>
++            <pathelement location="${preqs}/xerces-j2.jar"/>
+         </path>
+         <runtests reportsdir="${build.xs.reports}" classpathref="xs.test.path">
+             <tests>
