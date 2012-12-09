@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        %mkrel 1.0.7
+Release:        1.0.8
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -130,8 +130,8 @@ done
 %patch1 -p0
 #%patch2 -p1
 %patch3 -p1
-%patch4 -b .sav
-%patch5 -b .sav
+%patch4 -p0 -b .sav
+%patch5 -p0 -b .sav
 %patch6 -p0 -b .docbook
 
 %build
@@ -148,41 +148,38 @@ touch META-INF/MANIFEST.MF
 zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 
 %install
-rm -rf %{buildroot}
-install -dm 755 %{buildroot}%{_javadir}/%{base_name}
+rm -rf $RPM_BUILD_ROOT
+install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name}
 for jar in dist/*.jar; do
-   install -m 644 ${jar} %{buildroot}%{_javadir}/%{base_name}/
+   install -m 644 ${jar} $RPM_BUILD_ROOT%{_javadir}/%{base_name}/
 done
-(cd %{buildroot}%{_javadir}/%{base_name} &&
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
     for jar in *-%{version}*;
         do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`;
     done
 )
 
-(cd %{buildroot}%{_javadir}/%{base_name} &&
+(cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
     for jar in *.jar;
         do ln -sf ${jar} ws-${jar};
     done
 )
 
 #javadoc
-install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
+install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 cp -pr build/docs/src/documentation/content/apidocs \
-    %{buildroot}%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
+    $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+ln -s %{name}-%{version} $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 rm -rf build/docs/src/documentation/content/apidocs
 
 #manual
-install -dm 755 %{buildroot}%{_docdir}/%{name}-%{version}
-cp -pr build/docs/src/documentation/content/* %{buildroot}%{_docdir}/%{name}-%{version}
-install -pm 644 LICENSE %{buildroot}%{_docdir}/%{name}-%{version}
+install -dm 755 $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+cp -pr build/docs/src/documentation/content/* $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
+install -pm 644 LICENSE $RPM_BUILD_ROOT%{_docdir}/%{name}-%{version}
 
 %if %{gcj_support}
 %{_bindir}/aot-compile-rpm
 %endif
-
-%clean
-rm -rf %{buildroot}
 
 %post
 %if %{gcj_support}
@@ -196,7 +193,6 @@ rm -rf %{buildroot}
 
 %files
 %defattr(0644,root,root,0755)
-%doc %{_docdir}/%{name}-%{version}/LICENSE
 %{_javadir}/%{base_name}
 %if %{gcj_support}
 %dir %{_libdir}/gcj/%{name}
@@ -211,3 +207,81 @@ rm -rf %{buildroot}
 %files manual
 %defattr(0644,root,root,0755)
 %doc %{_docdir}/%{name}-%{version}
+
+
+%changelog
+* Sat Dec 04 2010 Oden Eriksson <oeriksson@mandriva.com> 0:0.5.2-1.0.6mdv2011.0
++ Revision: 608173
+- rebuild
+
+* Wed Mar 17 2010 Oden Eriksson <oeriksson@mandriva.com> 0:0.5.2-1.0.5mdv2010.1
++ Revision: 524356
+- rebuilt for 2010.1
+
+* Thu Jan 15 2009 Jérôme Soyer <saispo@mandriva.org> 0:0.5.2-1.0.4mdv2009.1
++ Revision: 329687
+- Remove patch2 and add patch6 to fix dtd
+- Add zip to BR
+- Add BR
+- Add BR
+- Add libxml2-utils BR
+- Bump Release
+- Fix Build
+
+* Mon Jan 05 2009 Jérôme Soyer <saispo@mandriva.org> 0:0.5.2-1.0.3mdv2009.1
++ Revision: 325046
+- Add some patches and rebuild
+
+  + Olivier Blin <oblin@mandriva.com>
+    - restore BuildRoot
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - kill re-definition of %%buildroot on Pixel's request
+
+  + Anssi Hannula <anssi@mandriva.org>
+    - buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+
+* Wed Dec 12 2007 Alexander Kurtakov <akurtakov@mandriva.org> 0:0.5.2-1.0.1mdv2008.1
++ Revision: 117861
+- new version 0.5.2 with maven poms (jpp sync)
+
+* Sat Sep 15 2007 Anssi Hannula <anssi@mandriva.org> 0:0.5.1-2.1.3mdv2008.0
++ Revision: 87265
+- rebuild to filter out autorequires of GCJ AOT objects
+- remove unnecessary Requires(post) on java-gcj-compat
+
+* Wed Jul 18 2007 Anssi Hannula <anssi@mandriva.org> 0:0.5.1-2.1.2mdv2008.0
++ Revision: 53213
+- use xml-commons-jaxp-1.3-apis explicitely instead of the generic
+  xml-commons-apis which is provided by multiple packages (see bug #31473)
+
+* Tue Jul 03 2007 David Walluck <walluck@mandriva.org> 0:0.5.1-2.1.1mdv2008.0
++ Revision: 47659
+- Import ws-jaxme
+
+
+
+* Mon Feb 12 2007 Deepak Bhole <dbhole@redhat.com> - 0:0.5.1-2jpp.1
+- Update as per Fedora guidelines.
+
+* Wed May 04 2006 Ralph Apel <r.apel at r-apel.de> - 0:0.5.1-1jpp
+- First JPP-1.7 release
+
+* Tue Dec 20 2005 Ralph Apel <r.apel at r-apel.de> - 0:0.5-1jpp
+- Upgrade to 0.5
+
+* Thu Sep 09 2004 Ralph Apel <r.apel at r-apel.de> - 0:0.3.1-1jpp
+- Fix version in changelog
+- Upgrade to 0.3.1
+
+* Fri Aug 30 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.4jpp
+- Build with ant-1.6.2
+
+* Fri Aug 06 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.3jpp
+- Void change
+
+* Tue Jun 01 2004 Randy Watler <rwatler at finali.com> - 0:2.0-0.b1.2jpp
+- Upgrade to Ant 1.6.X
+
+* Fri Mar 04 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.1jpp
+- First JPackage release
