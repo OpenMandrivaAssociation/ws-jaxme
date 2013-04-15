@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        1.0.8
+Release:        1.0.9
 Epoch:          0
 Summary:        Open source implementation of JAXB
 
@@ -74,6 +74,7 @@ BuildRequires:  xerces-j2
 BuildRequires:  xml-commons-jaxp-1.3-apis
 BuildRequires:  libxml2-utils
 BuildRequires:  docbook-style-xsl
+BuildRequires:	java-1.7.0-openjdk-devel
 BuildRequires:  docbook-dtd45-xml
 BuildRequires:  zip
 Requires:       antlr
