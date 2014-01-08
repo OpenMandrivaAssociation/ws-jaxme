@@ -1,4 +1,5 @@
-# Copyright (c) 2000-2007, JPackage Project
+%{?_javapackages_macros:%_javapackages_macros}
+# Copyright (c) 2000-2005, JPackage Project
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,116 +29,107 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%define base_name jaxme
-%define gcj_support 0
+%global base_name jaxme
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        1.0.14
+Release:        10.1%{?dist}
 Epoch:          0
 Summary:        Open source implementation of JAXB
-
-Group:          Development/Java
-License:        Apache License
-URL:            http://ws.apache.org/jaxme/
+License:        ASL 2.0
+URL:            http://ws.apache.org/
+# svn export http://svn.apache.org/repos/asf/webservices/archive/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
+# tar czf ws-jaxme-0.5.2-src.tar.gz ws-jaxme-0.5.2
 Source0:        ws-jaxme-0.5.2-src.tar.gz
-# svn export https://svn.apache.org/repos/asf/webservices/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
 Source1:        ws-jaxme-bind-MANIFEST.MF
+
+Source2:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxme2/%{version}/jaxme2-%{version}.pom
+Source3:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxme2-rt/%{version}/jaxme2-rt-%{version}.pom
+Source4:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmeapi/%{version}/jaxmeapi-%{version}.pom
+Source5:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmejs/%{version}/jaxmejs-%{version}.pom
+Source6:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmepm/%{version}/jaxmepm-%{version}.pom
+Source7:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmexs/%{version}/jaxmexs-%{version}.pom
+
+# generated docs with forrest-0.5.1
 Patch0:         ws-jaxme-docs_xml.patch
 Patch1:         ws-jaxme-catalog.patch
 Patch2:         ws-jaxme-system-dtd.patch
 Patch3:         ws-jaxme-jdk16.patch
-Patch4:         ws-jaxme-ant-scripts2.patch
+Patch4:         ws-jaxme-ant-scripts.patch
 Patch5:         ws-jaxme-use-commons-codec.patch
-Patch6:         ws-jaxme-fix_docbook.patch
-%if %{gcj_support}
-BuildRequires:  java-gcj-compat-devel
-%else
+# Remove xmldb-api, deprecated since f17
+Patch6:         ws-jaxme-remove-xmldb.patch
+Patch7:         ws-jaxme-0.5.2-class-version15.patch
 BuildArch:      noarch
-BuildRequires:  java-devel
-%endif
-BuildRequires:  java-rpmbuild >= 0:1.6
+BuildRequires:  jpackage-utils >= 0:1.6
+BuildRequires:  java-devel >= 1.6.0
 BuildRequires:  ant >= 0:1.6
-BuildRequires:  ant-trax >= 0:1.6
 BuildRequires:  ant-apache-resolver
 BuildRequires:  antlr
-BuildRequires:  jaxp_transform_impl
-BuildRequires:  jakarta-commons-codec
+BuildRequires:  apache-commons-codec
 BuildRequires:  junit
 BuildRequires:  hsqldb
 BuildRequires:  log4j
 BuildRequires:  xalan-j2
-BuildRequires:  xmldb-api
-BuildRequires:  xmldb-api-sdk
 BuildRequires:  xerces-j2
-BuildRequires:  xml-commons-jaxp-1.3-apis
-BuildRequires:  libxml2-utils
 BuildRequires:  docbook-style-xsl
-BuildRequires:	java-1.7.0-openjdk-devel
-BuildRequires:  docbook-dtd45-xml
+BuildRequires:  docbook-dtds
 BuildRequires:  zip
 Requires:       antlr
-Requires:       jaxp_transform_impl
-Requires:       jakarta-commons-codec
+Requires:       apache-commons-codec
 Requires:       junit
 Requires:       hsqldb
 Requires:       log4j
 Requires:       xalan-j2
-Requires:       xmldb-api
-Requires:       xmldb-api-sdk
 Requires:       xerces-j2
-Requires:       xml-commons-jaxp-1.3-apis
 Requires:       jpackage-utils
-Requires(postun): jpackage-utils
 
 %description
-A Java/XML binding compiler takes as input a schema
-description (in most cases an XML schema, but it may
-be a DTD, a RelaxNG schema, a Java class inspected
-via reflection, or a database schema). The output is
+A Java/XML binding compiler takes as input a schema 
+description (in most cases an XML schema, but it may 
+be a DTD, a RelaxNG schema, a Java class inspected 
+via reflection, or a database schema). The output is 
 a set of Java classes:
-* A Java bean class matching the schema description.
-  (If the schema was obtained via Java reflection,
+* A Java bean class matching the schema description. 
+  (If the schema was obtained via Java reflection, 
   the original Java bean class.)
-* Read a conforming XML document and convert it into
+* Read a conforming XML document and convert it into 
   the equivalent Java bean.
-* Vice versa, marshal the Java bean back into the
+* Vice versa, marshal the Java bean back into the 
   original XML document.
 
 %package        javadoc
 Summary:        Javadoc for %{name}
-Group:          Development/Java
-Requires:       jpackage-utils
-Requires(postun): jpackage-utils
 
 %description    javadoc
 %{summary}.
 
 %package        manual
 Summary:        Documents for %{name}
-Group:          Development/Java
 
 %description    manual
 %{summary}.
 
 %prep
-%setup -q -n %{name}-%{version}
-for j in $(find . -name "*.jar"); do
-    mv $j $j.no
-done
+%setup -q
+find . -name "*.jar" -print -delete
 
 %patch0 -p0
 %patch1 -p0
-#%patch2 -p1
+%patch2 -p1
+DOCBOOKX_DTD=`%{_bindir}/xmlcatalog %{_datadir}/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
+%{__perl} -pi -e 's|@DOCBOOKX_DTD@|$DOCBOOKX_DTD|' src/documentation/manual/jaxme2.xml
 %patch3 -p1
-%patch4 -p0 -b .sav
-%patch5 -p0 -b .sav
-%patch6 -p0 -b .docbook
+%patch4
+%patch5
+%patch6 -p1
+%patch7 -p1
+
+sed -i 's/\r//' NOTICE
 
 %build
-export OPT_JAR_LIST="xalan-j2 ant/ant-trax xalan-j2-serializer xml-commons-resolver ant/ant-apache-resolver"
-export CLASSPATH=$(build-classpath antlr hsqldb commons-codec junit log4j xmldb-api xerces-j2 xml-commons-jaxp-1.3-apis)
-%{ant} all Docs.all \
+export CLASSPATH=$(build-classpath antlr hsqldb commons-codec junit log4j xerces-j2 xalan-j2 xalan-j2-serializer)
+ant all Docs.all \
 -Dbuild.sysclasspath=first \
 -Ddocbook.home=%{_datadir}/sgml/docbook \
 -Ddocbookxsl.home=%{_datadir}/sgml/docbook/xsl-stylesheets
@@ -148,123 +140,108 @@ touch META-INF/MANIFEST.MF
 zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 
 %install
-rm -rf %{buildroot}
-install -dm 755 %{buildroot}%{_javadir}/%{base_name}
-for jar in dist/*.jar; do
-   install -m 644 ${jar} %{buildroot}%{_javadir}/%{base_name}/
-done
-(cd %{buildroot}%{_javadir}/%{base_name} &&
-    for jar in *-%{version}*;
-        do ln -sf ${jar} `echo $jar| sed  "s|-%{version}||g"`;
-    done
-)
 
-(cd %{buildroot}%{_javadir}/%{base_name} &&
-    for jar in *.jar;
-        do ln -sf ${jar} ws-${jar};
-    done
-)
+install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name} $RPM_BUILD_ROOT%{_mavenpomdir}
+for jar in jaxme2 jaxme2-rt jaxmeapi jaxmejs jaxmepm jaxmexs; do
+   install -m 644 dist/${jar}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{base_name}/${jar}.jar
+   install -pm 644 %{_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
+   %add_maven_depmap JPP.%{base_name}-${jar}.pom %{base_name}/${jar}.jar
+  (
+    cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
+    ln -sf ${jar}.jar ws-${jar}.jar
+  )
+done
 
 #javadoc
-install -dm 755 %{buildroot}%{_javadocdir}/%{name}-%{version}
+install -dm 755 $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 cp -pr build/docs/src/documentation/content/apidocs \
-    %{buildroot}%{_javadocdir}/%{name}-%{version}
-ln -s %{name}-%{version} %{buildroot}%{_javadocdir}/%{name}
+    $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 rm -rf build/docs/src/documentation/content/apidocs
 
-#manual
-install -dm 755 %{buildroot}%{_docdir}/%{name}-%{version}
-cp -pr build/docs/src/documentation/content/* %{buildroot}%{_docdir}/%{name}-%{version}
-install -pm 644 LICENSE %{buildroot}%{_docdir}/%{name}-%{version}
-
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
-
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-%endif
-
-%if %{gcj_support}
-%postun
-%{clean_gcjdb}
-%endif
-
 %files
-%defattr(0644,root,root,0755)
+%doc LICENSE NOTICE
 %{_javadir}/%{base_name}
-%if %{gcj_support}
-%dir %{_libdir}/gcj/%{name}
-%attr(-,root,root) %{_libdir}/gcj/%{name}/*
-%endif
+%{_mavenpomdir}/*
+%{_mavendepmapfragdir}/*
 
 %files javadoc
-%defattr(0644,root,root,0755)
-%doc %{_javadocdir}/%{name}-%{version}
+%doc LICENSE NOTICE
 %doc %{_javadocdir}/%{name}
 
 %files manual
-%defattr(0644,root,root,0755)
-%doc %{_docdir}/%{name}-%{version}
-
+%doc LICENSE NOTICE
+%doc build/docs/src/documentation/content/manual
 
 %changelog
-* Sat Dec 04 2010 Oden Eriksson <oeriksson@mandriva.com> 0:0.5.2-1.0.6mdv2011.0
-+ Revision: 608173
-- rebuild
+* Thu Sep 05 2013 gil cattaneo <puntogil@libero.it> - 0:0.5.2-10
+- minor changes to update to current packaging guidelines
+- added maven poms (rhbz#903694)
+- stop hardcoding docdir (rhbz#993889)
+- fix some rpmlint problems
 
-* Wed Mar 17 2010 Oden Eriksson <oeriksson@mandriva.com> 0:0.5.2-1.0.5mdv2010.1
-+ Revision: 524356
-- rebuilt for 2010.1
+* Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.2-9
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 
-* Thu Jan 15 2009 Jérôme Soyer <saispo@mandriva.org> 0:0.5.2-1.0.4mdv2009.1
-+ Revision: 329687
-- Remove patch2 and add patch6 to fix dtd
-- Add zip to BR
-- Add BR
-- Add BR
-- Add libxml2-utils BR
-- Bump Release
-- Fix Build
+* Tue Mar  5 2013 Hans de Goede <hdegoede@redhat.com> - 0:0.5.2-8
+- Fix FTBFS (add xalan-j2-serializer to classpath) (rhbz#914580)
 
-* Mon Jan 05 2009 Jérôme Soyer <saispo@mandriva.org> 0:0.5.2-1.0.3mdv2009.1
-+ Revision: 325046
-- Add some patches and rebuild
+* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.2-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
-  + Olivier Blin <oblin@mandriva.com>
-    - restore BuildRoot
+* Thu Aug 23 2012 Stanislav Ochotnicky <sochotnicky@redhat.com> - 0:0.5.2-6
+- Add LICENSE and NOTICE files too all (sub)packages
 
-  + Thierry Vignaud <tv@mandriva.org>
-    - kill re-definition of %%buildroot on Pixel's request
+* Fri Jul 27 2012 Hans de Goede <hdegoede@redhat.com> - 0:0.5.2-5
+- Build all class files in 1.5 format (rhbz#842624)
 
-  + Anssi Hannula <anssi@mandriva.org>
-    - buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.2-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
-* Wed Dec 12 2007 Alexander Kurtakov <akurtakov@mandriva.org> 0:0.5.2-1.0.1mdv2008.1
-+ Revision: 117861
-- new version 0.5.2 with maven poms (jpp sync)
+* Fri Apr 6 2012 Alexander Kurtakov <akurtako@redhat.com> 0:0.5.2-3
+- Fix the dependencies.
 
-* Sat Sep 15 2007 Anssi Hannula <anssi@mandriva.org> 0:0.5.1-2.1.3mdv2008.0
-+ Revision: 87265
-- rebuild to filter out autorequires of GCJ AOT objects
-- remove unnecessary Requires(post) on java-gcj-compat
+* Fri Apr 6 2012 Alexander Kurtakov <akurtako@redhat.com> 0:0.5.2-2
+- Guideline fixes.
 
-* Wed Jul 18 2007 Anssi Hannula <anssi@mandriva.org> 0:0.5.1-2.1.2mdv2008.0
-+ Revision: 53213
-- use xml-commons-jaxp-1.3-apis explicitely instead of the generic
-  xml-commons-apis which is provided by multiple packages (see bug #31473)
+* Wed Feb 8 2012 Roland Grunberg <rgrunber@redhat.com> 0:0.5.2-1
+- Update to 0.5.2.
+- Remove xmldb-api due to deprecation.
+- Fix ws-jaxme-ant-scripts.patch to apply cleanly.
 
-* Tue Jul 03 2007 David Walluck <walluck@mandriva.org> 0:0.5.1-2.1.1mdv2008.0
-+ Revision: 47659
-- Import ws-jaxme
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.1-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
 
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.1-7
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
+* Tue Dec 21 2010 Alexander Kurtakov <akurtako@redhat.com> 0:0.5.1-6
+- Fix ant-nodeps in the classpath.
+
+* Tue Dec 21 2010 Alexander Kurtakov <akurtako@redhat.com> 0:0.5.1-5
+- Fix FTBFS.
+
+* Mon Jul 27 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.1-4.4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.1-3.4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Wed Oct 22 2008 Alexander Kurtakov <akurtako@redhat.com> - 0:0.5.1-2.3
+- BR docbook-style-xsl.
+- BR ant-apache-resolver.
+
+* Wed Oct 22 2008 Alexander Kurtakov <akurtako@redhat.com> - 0:0.5.1-2.3
+- Partial sync with jpackage to get build fixes.
+- Add osgi manifest to jaxmeapi.jar.
+
+* Thu Jul 10 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 0:0.5.1-2.2
+- drop repotag
+- fix license tag
 
 * Mon Feb 12 2007 Deepak Bhole <dbhole@redhat.com> - 0:0.5.1-2jpp.1
 - Update as per Fedora guidelines.
 
-* Wed May 04 2006 Ralph Apel <r.apel at r-apel.de> - 0:0.5.1-1jpp
+* Thu May 04 2006 Ralph Apel <r.apel at r-apel.de> - 0:0.5.1-1jpp
 - First JPP-1.7 release
 
 * Tue Dec 20 2005 Ralph Apel <r.apel at r-apel.de> - 0:0.5-1jpp
@@ -274,7 +251,7 @@ install -pm 644 LICENSE %{buildroot}%{_docdir}/%{name}-%{version}
 - Fix version in changelog
 - Upgrade to 0.3.1
 
-* Fri Aug 30 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.4jpp
+* Mon Aug 30 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.4jpp
 - Build with ant-1.6.2
 
 * Fri Aug 06 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.3jpp
@@ -283,5 +260,5 @@ install -pm 644 LICENSE %{buildroot}%{_docdir}/%{name}-%{version}
 * Tue Jun 01 2004 Randy Watler <rwatler at finali.com> - 0:2.0-0.b1.2jpp
 - Upgrade to Ant 1.6.X
 
-* Fri Mar 04 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.1jpp
+* Thu Mar 04 2004 Ralph Apel <r.apel at r-apel.de> - 0:2.0-0.b1.1jpp
 - First JPackage release
