@@ -149,7 +149,7 @@ install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name} $RPM_BUILD_ROOT%{_mavenp
 for jar in jaxme2 jaxme2-rt jaxmeapi jaxmejs jaxmepm jaxmexs; do
    install -m 644 dist/${jar}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{base_name}/${jar}.jar
 %if 0%{?fedora}
-   install -pm 644 %{_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
+#   install -pm 644 ${_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
 %else
    install -pm 644 ${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
 %endif
