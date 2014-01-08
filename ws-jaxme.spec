@@ -112,6 +112,10 @@ Summary:        Documents for %{name}
 
 %prep
 %setup -q
+%if 0%{?fedora}
+%else
+cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} .
+%endif
 find . -name "*.jar" -print -delete
 
 %patch0 -p0
@@ -144,7 +148,11 @@ zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name} $RPM_BUILD_ROOT%{_mavenpomdir}
 for jar in jaxme2 jaxme2-rt jaxmeapi jaxmejs jaxmepm jaxmexs; do
    install -m 644 dist/${jar}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{base_name}/${jar}.jar
+%if 0%{?fedora}
    install -pm 644 %{_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
+%else
+   install -pm 644 ${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
+%endif
    %add_maven_depmap JPP.%{base_name}-${jar}.pom %{base_name}/${jar}.jar
   (
     cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
