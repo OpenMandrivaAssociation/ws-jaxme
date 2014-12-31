@@ -33,9 +33,10 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        10.1%{?dist}
+Release:        12.1
 Epoch:          0
 Summary:        Open source implementation of JAXB
+Group:          Development/Java
 License:        ASL 2.0
 URL:            http://ws.apache.org/
 # svn export http://svn.apache.org/repos/asf/webservices/archive/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
@@ -49,6 +50,8 @@ Source4:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmeapi/%{ver
 Source5:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmejs/%{version}/jaxmejs-%{version}.pom
 Source6:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmepm/%{version}/jaxmepm-%{version}.pom
 Source7:        http://repo1.maven.org/maven2/org/apache/ws/jaxme/jaxmexs/%{version}/jaxmexs-%{version}.pom
+
+Source100:	ws-jaxme.rpmlintrc
 
 # generated docs with forrest-0.5.1
 Patch0:         ws-jaxme-docs_xml.patch
@@ -68,8 +71,8 @@ BuildRequires:  ant-apache-resolver
 BuildRequires:  antlr
 BuildRequires:  apache-commons-codec
 BuildRequires:  junit
-BuildRequires:  hsqldb
-BuildRequires:  log4j
+BuildRequires:  hsqldb1
+BuildRequires:  log4j12
 BuildRequires:  xalan-j2
 BuildRequires:  xerces-j2
 BuildRequires:  docbook-style-xsl
@@ -78,8 +81,8 @@ BuildRequires:  zip
 Requires:       antlr
 Requires:       apache-commons-codec
 Requires:       junit
-Requires:       hsqldb
-Requires:       log4j
+Requires:       hsqldb1
+Requires:       log4j12
 Requires:       xalan-j2
 Requires:       xerces-j2
 Requires:       jpackage-utils
@@ -112,10 +115,6 @@ Summary:        Documents for %{name}
 
 %prep
 %setup -q
-%if 0%{?fedora}
-%else
-cp -p %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOURCE7} .
-%endif
 find . -name "*.jar" -print -delete
 
 %patch0 -p0
@@ -124,15 +123,18 @@ find . -name "*.jar" -print -delete
 DOCBOOKX_DTD=`%{_bindir}/xmlcatalog %{_datadir}/sgml/docbook/xmlcatalog "-//OASIS//DTD DocBook XML V4.5//EN" 2>/dev/null`
 %{__perl} -pi -e 's|@DOCBOOKX_DTD@|$DOCBOOKX_DTD|' src/documentation/manual/jaxme2.xml
 %patch3 -p1
-%patch4
-%patch5
+%patch4 -p0 -b .sav
+%patch5 -p0 -b .sav
 %patch6 -p1
 %patch7 -p1
 
 sed -i 's/\r//' NOTICE
 
+sed -i "s|log4j.jar|log4j12-1.2.17.jar|" ant/js.xml
+sed -i "s|hsqldb.jar|hsqldb1-1.jar|" ant/js.xml ant/pm.xml
+
 %build
-export CLASSPATH=$(build-classpath antlr hsqldb commons-codec junit log4j xerces-j2 xalan-j2 xalan-j2-serializer)
+export CLASSPATH=$(build-classpath antlr hsqldb1-1 commons-codec junit log4j12-1.2.17 xerces-j2 xalan-j2 xalan-j2-serializer)
 ant all Docs.all \
 -Dbuild.sysclasspath=first \
 -Ddocbook.home=%{_datadir}/sgml/docbook \
@@ -148,11 +150,7 @@ zip -u dist/jaxmeapi-%{version}.jar META-INF/MANIFEST.MF
 install -dm 755 $RPM_BUILD_ROOT%{_javadir}/%{base_name} $RPM_BUILD_ROOT%{_mavenpomdir}
 for jar in jaxme2 jaxme2-rt jaxmeapi jaxmejs jaxmepm jaxmexs; do
    install -m 644 dist/${jar}-%{version}.jar $RPM_BUILD_ROOT%{_javadir}/%{base_name}/${jar}.jar
-%if 0%{?fedora}
-#   install -pm 644 ${_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
-%else
-   install -pm 644 ${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
-%endif
+   install -pm 644 %{_sourcedir}/${jar}-%{version}.pom $RPM_BUILD_ROOT%{_mavenpomdir}/JPP.%{base_name}-${jar}.pom
    %add_maven_depmap JPP.%{base_name}-${jar}.pom %{base_name}/${jar}.jar
   (
     cd $RPM_BUILD_ROOT%{_javadir}/%{base_name} &&
@@ -166,11 +164,9 @@ cp -pr build/docs/src/documentation/content/apidocs \
     $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 rm -rf build/docs/src/documentation/content/apidocs
 
-%files
+%files -f .mfiles
 %doc LICENSE NOTICE
 %{_javadir}/%{base_name}
-%{_mavenpomdir}/*
-%{_mavendepmapfragdir}/*
 
 %files javadoc
 %doc LICENSE NOTICE
@@ -181,6 +177,12 @@ rm -rf build/docs/src/documentation/content/apidocs
 %doc build/docs/src/documentation/content/manual
 
 %changelog
+* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0:0.5.2-12
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Thu May 29 2014 Mikolaj Izdebski <mizdebsk@redhat.com> - 0:0.5.2-11
+- Use .mfiles generated during build
+
 * Thu Sep 05 2013 gil cattaneo <puntogil@libero.it> - 0:0.5.2-10
 - minor changes to update to current packaging guidelines
 - added maven poms (rhbz#903694)
