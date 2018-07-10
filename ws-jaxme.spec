@@ -33,7 +33,7 @@
 
 Name:           ws-jaxme
 Version:        0.5.2
-Release:        12.2
+Release:        12.3
 Epoch:          0
 Summary:        Open source implementation of JAXB
 Group:          Development/Java
