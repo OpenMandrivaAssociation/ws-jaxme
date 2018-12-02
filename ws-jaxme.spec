@@ -65,7 +65,7 @@ Patch6:         ws-jaxme-remove-xmldb.patch
 Patch7:         ws-jaxme-0.5.2-class-version15.patch
 BuildArch:      noarch
 BuildRequires:  jpackage-utils >= 0:1.6
-BuildRequires:  java-devel >= 1.6.0
+BuildRequires:  java-devel
 BuildRequires:  ant >= 0:1.6
 BuildRequires:  ant-apache-resolver
 BuildRequires:  antlr
