@@ -38,7 +38,7 @@ Epoch:          0
 Summary:        Open source implementation of JAXB
 Group:          Development/Java
 License:        ASL 2.0
-URL:            http://ws.apache.org/
+URL:            https://ws.apache.org/
 # svn export http://svn.apache.org/repos/asf/webservices/archive/jaxme/tags/R0_5_2/ ws-jaxme-0.5.2
 # tar czf ws-jaxme-0.5.2-src.tar.gz ws-jaxme-0.5.2
 Source0:        ws-jaxme-0.5.2-src.tar.gz
